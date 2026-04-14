@@ -13,14 +13,12 @@ A full-stack Document Intelligence Platform for books that combines web scraping
 
 ## Screenshots
 
-- Dashboard  
-  ![Dashboard](docs/screenshots/dashboard.svg)
-- Book Detail  
-  ![Book Detail](docs/screenshots/book-detail.svg)
-- Q&A Interface  
-  ![Q&A](docs/screenshots/qa.svg)
-- Personal Screenshot  
+- Personal Screenshot 1  
   ![Personal Screenshot](docs/screenshots/personal-screenshot.png)
+- Personal Screenshot 2  
+  ![Personal Screenshot 2](docs/screenshots/personal-screenshot-2.png)
+- Personal Screenshot 3  
+  ![Personal Screenshot 3](docs/screenshots/personal-screenshot-3.png)
 
 ## Project Structure
 
