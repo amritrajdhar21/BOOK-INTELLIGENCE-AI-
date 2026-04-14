@@ -1,32 +1,50 @@
 # Book Intelligence Platform
 
-Full-stack Document Intelligence Platform for books using Django REST Framework, Next.js + Tailwind CSS, Selenium scraping, ChromaDB retrieval, and LM Studio local LLM integration.
+A full-stack Document Intelligence Platform for books that combines web scraping, AI-generated insights, semantic retrieval, and conversational Q&A.
+
+## Features
+
+- Django REST backend for ingestion, retrieval, recommendations, and Q&A
+- Next.js frontend with Dashboard, Book Detail, and Q&A flows
+- Selenium scraper for `books.toscrape.com` (multi-page crawl)
+- AI insights generation (summary + genre classification)
+- RAG pipeline using sentence-transformers + ChromaDB
+- Local LLM integration via LM Studio (`http://localhost:1234/v1/chat/completions`)
 
 ## Screenshots
 
-These UI screenshots are included in `docs/screenshots/`:
-
-- Dashboard:
+- Dashboard  
   ![Dashboard](docs/screenshots/dashboard.svg)
-- Book Detail:
+- Book Detail  
   ![Book Detail](docs/screenshots/book-detail.svg)
-- Q&A Interface:
+- Q&A Interface  
   ![Q&A](docs/screenshots/qa.svg)
 
 ## Project Structure
 
 ```text
 book-intelligence/
-├── backend/          # Django REST Framework backend
-├── frontend/         # Next.js + Tailwind frontend
-├── scraper/          # Selenium scraper
-├── samples/          # API/test sample payloads and examples
-└── requirements.txt  # Root Python dependencies
+├── backend/               # Django REST Framework app
+│   ├── backend/           # settings/urls/asgi/wsgi
+│   └── books/             # models, APIs, AI modules, RAG
+├── frontend/              # Next.js + Tailwind UI
+├── scraper/               # Selenium + BeautifulSoup scraper
+├── samples/               # sample payloads and QA examples
+├── docs/screenshots/      # README images
+└── requirements.txt       # root python dependencies
 ```
+
+## Tech Stack
+
+- **Backend:** Django, Django REST Framework, ChromaDB, sentence-transformers, PyMySQL
+- **Frontend:** Next.js (App Router), React, Tailwind CSS
+- **Scraping:** Selenium, BeautifulSoup
+- **LLM:** LM Studio (OpenAI-compatible local endpoint)
+- **Database:** SQLite (default local fallback) / MySQL (optional via env)
 
 ## Setup Instructions
 
-### 1) Clone and Environment
+### 1) Clone and Prepare Environment
 
 ```bash
 git clone <your-repo-url>
@@ -36,22 +54,20 @@ source .venv/bin/activate
 python3 -m pip install --upgrade pip
 ```
 
-### 2) Install Dependencies
+### 2) Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3) Configure Environment
-
-Create a `.env` in `backend/` using `.env.example`:
+### 3) Configure Environment Variables
 
 ```bash
 cp .env.example backend/.env
 ```
 
-Default local run mode uses SQLite fallback (`USE_SQLITE=True`).  
-To use MySQL (`bookdb`) set `USE_SQLITE=False` and configure `MYSQL_*` values.
+Default mode uses SQLite (`USE_SQLITE=True`) for quick local startup.  
+For MySQL (`bookdb`), set `USE_SQLITE=False` and configure `MYSQL_*` env values.
 
 ### 4) Run Backend
 
@@ -61,9 +77,11 @@ python3 manage.py migrate
 python3 manage.py runserver 0.0.0.0:8000
 ```
 
+Backend API: `http://localhost:8000`
+
 ### 5) Run Frontend
 
-In another terminal:
+In a new terminal:
 
 ```bash
 cd frontend
@@ -71,10 +89,9 @@ npm install
 npm run dev
 ```
 
-Frontend: `http://localhost:3000`  
-Backend API: `http://localhost:8000`
+Frontend: `http://localhost:3000`
 
-### 6) Optional: Run Scraper
+### 6) Run Scraper (Optional)
 
 In another terminal:
 
@@ -82,14 +99,18 @@ In another terminal:
 python3 scraper/scrape.py
 ```
 
-This scrapes at least 5 pages from `https://books.toscrape.com`, posts books to `/api/books/upload/`, and stores backup data at `scraper/books_raw.json`.
+Scraper behavior:
+- scrapes minimum 5 pages from `https://books.toscrape.com`
+- extracts title, rating, price, detail description, cover URL, book URL
+- posts each book to `POST /api/books/upload/`
+- writes backup JSON to `scraper/books_raw.json`
 
 ## API Documentation
 
 Base URL: `http://localhost:8000/api`
 
 ### `GET /books/`
-Returns list of books:
+Returns all books for listing:
 
 ```json
 [
@@ -105,20 +126,19 @@ Returns list of books:
 ```
 
 ### `GET /books/<id>/`
-Returns full book details including `description`, `summary`, and metadata.
+Returns complete book data (`description`, `summary`, `genre`, `book_url`, etc.).
 
 ### `GET /books/<id>/recommendations/`
-Returns top 3 similar books using ChromaDB vector similarity.
+Returns top 3 semantically similar books from vector search.
 
 ### `POST /books/upload/`
-Accepts either:
 
+Option A: URL-only payload
 ```json
 { "book_url": "https://books.toscrape.com/catalogue/..." }
 ```
 
-or full payload:
-
+Option B: Full payload
 ```json
 {
   "title": "Example Book",
@@ -133,7 +153,6 @@ or full payload:
 ### `POST /books/ask/`
 
 Request:
-
 ```json
 {
   "question": "What is this book mainly about?",
@@ -142,7 +161,6 @@ Request:
 ```
 
 Response:
-
 ```json
 {
   "answer": "The book focuses on ...",
@@ -152,35 +170,23 @@ Response:
 
 ## Sample Questions and Answers
 
-See `samples/sample_qa.md` for expanded examples. Quick examples:
+More examples: `samples/sample_qa.md`
 
-- **Q:** What are the key themes in this book?
+- **Q:** What are the key themes in this book?  
   **A:** Themes include identity, resilience, and social pressure.
-- **Q:** Recommend similar books to this one.
-  **A:** Based on semantic similarity, try titles with overlapping themes and tone.
-- **Q:** Summarize this book in 3 points.
-  **A:** Core conflict, major character arc, and ending implications.
+- **Q:** Recommend similar books to this one.  
+  **A:** Similarity search returns books with overlapping themes, style, and tone.
+- **Q:** Summarize this book in 3 points.  
+  **A:** It highlights the central conflict, character arc, and resolution.
 
-## Requirements
+## Testing Samples
 
-Python dependencies are in:
+Sample files:
+- `samples/upload_book.json`
+- `samples/ask_question.json`
+- `samples/sample_qa.md`
 
-- `requirements.txt` (root)
-- `backend/requirements.txt` (backend specific)
-
-Node dependencies are in:
-
-- `frontend/package.json`
-
-## Samples for Testing
-
-Use sample files in `samples/`:
-
-- `samples/upload_book.json` for `/api/books/upload/`
-- `samples/ask_question.json` for `/api/books/ask/`
-- `samples/sample_qa.md` for expected-style Q&A examples
-
-Example test calls:
+### Quick API Test Commands
 
 ```bash
 curl -X POST http://localhost:8000/api/books/upload/ \
@@ -193,3 +199,16 @@ curl -X POST http://localhost:8000/api/books/ask/ \
   -H "Content-Type: application/json" \
   -d @samples/ask_question.json
 ```
+
+## Dependency Files
+
+- Root python deps: `requirements.txt`
+- Backend python deps: `backend/requirements.txt`
+- Frontend deps: `frontend/package.json`
+
+## Troubleshooting
+
+- **`ERR_CONNECTION_REFUSED` on `:8000`:** backend is not running
+- **LM responses missing:** ensure LM Studio is running at `http://localhost:1234`
+- **No recommendation/Q&A context:** ingest books first via scraper or upload API
+- **MySQL connection errors:** keep SQLite fallback enabled or update DB env vars correctly
