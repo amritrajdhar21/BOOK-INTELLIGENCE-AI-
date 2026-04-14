@@ -19,6 +19,8 @@ A full-stack Document Intelligence Platform for books that combines web scraping
   ![Personal Screenshot 2](docs/screenshots/personal-screenshot-2.png)
 - Personal Screenshot 3  
   ![Personal Screenshot 3](docs/screenshots/personal-screenshot-3.png)
+- Personal Screenshot 4  
+  ![Personal Screenshot 4](docs/screenshots/personal-screenshot-4.png)
 
 ## Project Structure
 
